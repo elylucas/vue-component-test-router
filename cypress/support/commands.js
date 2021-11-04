@@ -1,3 +1,5 @@
+import { h } from 'vue';
+
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -24,18 +26,19 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 import { mount } from '@cypress/vue';
-import router from '../../src/router';
 
 Cypress.Commands.add('mount', (comp, options = {}) => {
   options.global = options.global || {};
   options.global.stubs = options.global.stubs || {};
   options.global.stubs.transition = false;
-  options.global.plugins = options.global.plugins || [];
-  options.global.plugins.push({
-    install(app) {
-      app.use(router);
-    },
-  });
+  options.global.components = options.global.components || {};
+  options.global.components['router-link'] = (props, context) => {
+    return h(`a`, { 
+      'href': typeof props.to === 'string' ? props.to : JSON.stringify(props.to)
+      }, 
+      context.slots.default()
+    )
+  }
 
   return mount(comp, options);
 });
